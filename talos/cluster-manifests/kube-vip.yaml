@@ -1,0 +1,160 @@
+---
+# ─── RBAC for kube-vip DaemonSet ───────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-vip
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:kube-vip-role
+rules:
+  - apiGroups: [""]
+    resources: ["services", "services/status", "nodes", "endpoints"]
+    verbs: ["list", "get", "watch", "update"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["list", "get", "watch", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:kube-vip-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-vip-role
+subjects:
+  - kind: ServiceAccount
+    name: kube-vip
+    namespace: kube-system
+---
+# kube-vip DaemonSet – ARP-mode LoadBalancer IP advertisement
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-vip-ds
+  namespace: kube-system
+spec:
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      name: kube-vip-ds
+  template:
+    metadata:
+      labels:
+        name: kube-vip-ds
+    spec:
+      containers:
+        - name: kube-vip
+          image: ghcr.io/kube-vip/kube-vip:v0.8.9
+          imagePullPolicy: IfNotPresent
+          args:
+            - manager
+          env:
+            - name: vip_arp
+              value: "true"
+            - name: svc_enable
+              value: "true"
+            - name: svc_election
+              value: "true"
+            - name: cp_enable
+              value: "false"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+      hostNetwork: true
+      serviceAccountName: kube-vip
+      tolerations:
+        - operator: Exists
+---
+# ─── RBAC for kube-vip Cloud Provider ─────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-vip-cloud-controller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:kube-vip-cloud-controller-role
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "create", "update", "list"]
+  - apiGroups: [""]
+    resources: ["configmaps", "endpoints", "events", "services", "services/status", "serviceaccounts"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["daemonsets"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:kube-vip-cloud-controller-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-vip-cloud-controller-role
+subjects:
+  - kind: ServiceAccount
+    name: kube-vip-cloud-controller
+    namespace: kube-system
+---
+# IP pool for LoadBalancer services (edit range-global to match your LAN)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevip
+  namespace: kube-system
+data:
+  range-global: 192.168.0.240-192.168.0.250
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-vip-cloud-provider
+  namespace: kube-system
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: kube-vip
+      component: kube-vip-cloud-provider
+  template:
+    metadata:
+      labels:
+        app: kube-vip
+        component: kube-vip-cloud-provider
+    spec:
+      containers:
+        - name: kube-vip-cloud-provider
+          image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - /kube-vip-cloud-provider
+            - --leader-elect-resource-lock=leases
+          resources:
+            requests:
+              cpu: 5m
+              memory: 24Mi
+            limits:
+              memory: 48Mi
+      serviceAccountName: kube-vip-cloud-controller
+      tolerations:
+        - operator: Exists

@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    chart: ingress-nginx
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    targetRevision: 4.12.1              # latest stable as of 2026-04
+    helm:
+      values: |
+        controller:
+          replicaCount: 1
+          # Low-RAM tuning: reduce worker processes
+          config:
+            worker-processes: "1"
+            use-gzip: "true"
+            gzip-level: "5"
+            keep-alive: "75"
+            proxy-buffer-size: "16k"
+          service:
+            type: LoadBalancer
+          admissionWebhooks:
+            enabled: false              # saves ~30 MiB RAM
+          resources:
+            requests:
+              cpu: 25m
+              memory: 90Mi
+            limits:
+              memory: 200Mi
+          # Allow the controller to be scheduled on any node
+          tolerations:
+            - operator: Exists
+          # Enable ssl-passthrough for ArgoCD
+          extraArgs:
+            enable-ssl-passthrough: ""
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

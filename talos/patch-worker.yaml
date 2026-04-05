@@ -1,0 +1,41 @@
+machine:
+  install:
+    disk: /dev/vda
+    wipe: true
+  network:
+    interfaces:
+      - interface: enp0s1
+        dhcp: false
+        addresses:
+          - 192.168.0.55/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.0.1
+    nameservers:
+      - 8.8.8.8          # Primary: reliable public DNS
+      - 1.1.1.1          # Secondary: Cloudflare
+    extraHostEntries:
+      - ip: 192.168.0.54
+        aliases:
+          - my-cluster-master
+  time:
+    servers:
+      - time.cloudflare.com
+      - pool.ntp.org
+  sysctls:
+    fs.inotify.max_user_instances: "8192"
+    fs.inotify.max_user_watches: "1048576"
+    net.ipv4.conf.all.rp_filter: "1"
+    net.ipv4.tcp_syncookies: "1"
+  kubelet:
+    extraConfig:
+      containerLogMaxSize: "10Mi"
+      containerLogMaxFiles: 3
+      kubeReserved:
+        cpu: "100m"
+        memory: "256Mi"
+      systemReserved:
+        cpu: "100m"
+        memory: "256Mi"
+      evictionHard:
+        memory.available: "100Mi"
