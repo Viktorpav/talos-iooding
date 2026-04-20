@@ -3,6 +3,7 @@ machine:
     disk: /dev/vda
     wipe: true
   network:
+    disableSearchDomain: true
     interfaces:
       - interface: enp0s1
         dhcp: false
@@ -12,8 +13,8 @@ machine:
           - network: 0.0.0.0/0
             gateway: 192.168.0.1
     nameservers:
-      - 8.8.8.8          # Primary: reliable public DNS
-      - 1.1.1.1          # Secondary: Cloudflare
+      - 1.1.1.1
+      - 8.8.8.8
     extraHostEntries:
       - ip: 192.168.0.54
         aliases:
@@ -23,17 +24,17 @@ machine:
       - time.cloudflare.com
       - pool.ntp.org
   sysctls:
-    # Allow many inotify watchers (needed by ArgoCD, CI tools, etc.)
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
-    # Harden network stack
     net.ipv4.conf.all.rp_filter: "1"
     net.ipv4.tcp_syncookies: "1"
   kubelet:
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
     extraConfig:
       containerLogMaxSize: "10Mi"
       containerLogMaxFiles: 3
-      # Reserve resources for OS; prevents OOM evictions in low-RAM setups
       kubeReserved:
         cpu: "100m"
         memory: "256Mi"
@@ -42,3 +43,5 @@ machine:
         memory: "256Mi"
       evictionHard:
         memory.available: "100Mi"
+        nodefs.available: "10%"
+        imagefs.available: "15%"

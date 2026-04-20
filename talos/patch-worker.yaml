@@ -3,6 +3,7 @@ machine:
     disk: /dev/vda
     wipe: true
   network:
+    disableSearchDomain: true
     interfaces:
       - interface: enp0s1
         dhcp: false
@@ -12,8 +13,8 @@ machine:
           - network: 0.0.0.0/0
             gateway: 192.168.0.1
     nameservers:
-      - 8.8.8.8          # Primary: reliable public DNS
-      - 1.1.1.1          # Secondary: Cloudflare
+      - 1.1.1.1      # Cloudflare first (more reliable)
+      - 8.8.8.8
     extraHostEntries:
       - ip: 192.168.0.54
         aliases:
@@ -28,6 +29,10 @@ machine:
     net.ipv4.conf.all.rp_filter: "1"
     net.ipv4.tcp_syncookies: "1"
   kubelet:
+    # Talos-specific node IP pinning
+    nodeIP:
+      validSubnets:
+        - 192.168.0.0/24
     extraConfig:
       containerLogMaxSize: "10Mi"
       containerLogMaxFiles: 3
@@ -39,3 +44,5 @@ machine:
         memory: "256Mi"
       evictionHard:
         memory.available: "100Mi"
+        nodefs.available: "10%"
+        imagefs.available: "15%"
