@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Viktorpav/talos-iooding.git
-    targetRevision: main
-    path: talos/iooding-manifests
+    repoURL: https://github.com/Viktorpav/iooding.git
+    targetRevision: master
+    path: k8s
   destination:
     server: https://kubernetes.default.svc
     namespace: iooding

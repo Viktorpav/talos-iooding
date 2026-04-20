@@ -28,8 +28,8 @@ all: apply creds sync ## Full bootstrap (apply patches, fetch creds, sync ArgoCD
 # Talos OS Layer
 # ==============================================================================
 apply: ## Push machine configs to control-plane and worker nodes
-	$(TALOSCTL) patch mc --nodes $(CP) -p @patch-cp.yaml
-	$(TALOSCTL) patch mc --nodes $(WK) -p @patch-worker.yaml
+	$(TALOSCTL) patch mc --nodes $(CP) -p @patches/controlplane.yaml
+	$(TALOSCTL) patch mc --nodes $(WK) -p @patches/worker.yaml
 
 creds: ## Fetch/Sync kubeconfig to have valid client cert & endpoint config
 	$(TALOSCTL) kubeconfig . --nodes $(CP) --force
@@ -59,7 +59,7 @@ sync: creds ## Bootstrap ArgoCD and apply all cluster manifests
 	  -f https://raw.githubusercontent.com/argoproj/argo-cd/$(ARGOCD_VERSION)/manifests/install.yaml
 	@echo "⏳  Waiting for ArgoCD server..."
 	kubectl rollout status deploy/argocd-server -n argocd --timeout=180s
-	kubectl apply -f cluster-manifests/
+	kubectl apply -f manifests/
 
 status: ## Show cluster status (Nodes, ArgoCD Apps, failed Pods)
 	@echo "=== Nodes ===" && kubectl get nodes -o wide

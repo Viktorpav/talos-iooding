@@ -14,38 +14,14 @@ Thumbs.db
 *.key
 *.crt
 
-# ─── Talos / Kubernetes secrets ───────────────────────────────────────────────
-# talosconfig and kubeconfig contain cluster credentials
-talos/talosconfig
-talos/kubeconfig
-# Raw (unsealed) secrets
-k8s/secrets*.yaml
+# ─── Talos generated configs (contain cluster secrets) ───────────────────────
+talosconfig
+kubeconfig
+controlplane.yaml
+worker.yaml
+
+# ─── Raw (unsealed) secrets ──────────────────────────────────────────────────
 **/secrets-plain.yaml
-
-# ─── Python ───────────────────────────────────────────────────────────────────
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-.venv/
-venv/
-env/
-.mypy_cache/
-.pytest_cache/
-.coverage
-htmlcov/
-
-# ─── Django runtime artefacts ─────────────────────────────────────────────────
-iooding/staticfiles/
-iooding/media/
-iooding/db.sqlite3
-iooding/*.sqlite3
 
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 *.log
-iooding/
