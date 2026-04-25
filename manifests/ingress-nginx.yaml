@@ -22,6 +22,7 @@ spec:
             gzip-level: "5"
             keep-alive: "75"
             proxy-buffer-size: "16k"
+            allow-snippet-annotations: "true"
           service:
             type: LoadBalancer
           admissionWebhooks:
