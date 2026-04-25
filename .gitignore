@@ -17,8 +17,8 @@ Thumbs.db
 # ─── Talos generated configs (contain cluster secrets) ───────────────────────
 talosconfig
 kubeconfig
-controlplane.yaml
-worker.yaml
+/controlplane.yaml
+/worker.yaml
 
 # ─── Raw (unsealed) secrets ──────────────────────────────────────────────────
 **/secrets-plain.yaml
