@@ -23,6 +23,7 @@ spec:
             keep-alive: "75"
             proxy-buffer-size: "16k"
             allow-snippet-annotations: "true"
+            annotations-risk-level: "Critical"
           service:
             type: LoadBalancer
           admissionWebhooks:
