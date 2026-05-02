@@ -78,3 +78,14 @@ hosts: ## Update /etc/hosts for local domains (requires sudo)
 	@echo "📌  Updating /etc/hosts → $(LB_IP)"
 	@sudo sed -i '' '/argocd\.local/d;/iooding\.local/d' /etc/hosts
 	@printf "$(LB_IP) argocd.local\n$(LB_IP) iooding.local\n" | sudo tee -a /etc/hosts
+
+IMG       ?= viktor2003/iooding
+TAG       ?= $(shell cd iooding && git rev-parse --short HEAD)
+
+build: ## Build & push iooding image
+	cd iooding && docker build --platform linux/arm64 -t $(IMG):v$(TAG) .
+	docker push $(IMG):v$(TAG)
+
+deploy: build ## Build, push, and update K8s manifest
+	sed -i '' 's|image: $(IMG):.*|image: $(IMG):v$(TAG)|g' iooding/k8s/deployment.yaml
+	@echo "✅ Image $(IMG):v$(TAG) — commit & push to trigger ArgoCD sync"

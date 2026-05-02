@@ -94,13 +94,13 @@ make pass
 
 ## Tech Highlights
 
-- **Talos Linux** — immutable, API-driven OS; no SSH, no shell
-- **ArgoCD** — everything is GitOps, zero manual `kubectl apply`
-- **kube-vip** — real LoadBalancer IPs on bare-metal (ARP mode)
-- **local-path-provisioner** — lightweight persistent storage (no Longhorn RAM overhead)
-- **Sealed Secrets** — secrets committed safely to Git
-- **Django ASGI** — async views + Server-Sent Events for AI chat streaming
-- **Redis Stack** — vector search for RAG without a separate vector DB
+- **Talos Linux** — immutable, API-driven OS; no SSH, no shell.
+- **ArgoCD** — everything is GitOps, zero manual `kubectl apply`.
+- **Real-Time AI Streaming** — Nginx Ingress and Gunicorn specifically tuned for low-latency token delivery (gzip off, buffering off).
+- **kube-vip ARP mode** — provides real LoadBalancer IPs on bare-metal without a cloud provider.
+- **local-path-provisioner** — lightweight persistent storage (no Longhorn RAM overhead).
+- **Sealed Secrets** — secrets committed safely to Git.
+- **Redis Stack** — vector search for RAG without a separate vector DB.
 
 ## Useful One-Liners
 
@@ -111,9 +111,9 @@ kubectl get pods -A -w
 # Tail ArgoCD logs
 kubectl logs -n argocd deploy/argocd-server -f
 
-# Force ArgoCD sync
-kubectl -n argocd patch app iooding-app -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}' --type merge
+# Force ArgoCD sync (trigger polling immediately)
+argocd app sync iooding-app --force
 
-# Check kube-vip IP assignments
-kubectl get svc -A --field-selector spec.type=LoadBalancer
+# Check Nginx configuration inside the controller
+kubectl exec -n ingress-nginx <controller-pod> -- nginx -T | grep -A 50 "iooding.local"
 ```
