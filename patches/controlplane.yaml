@@ -1,4 +1,8 @@
+cluster:
+  allowSchedulingOnControlPlanes: true
 machine:
+  nodeLabels:
+    node-role.kubernetes.io/storage: "true"
   install:
     disk: /dev/vda
     wipe: true
