@@ -84,12 +84,12 @@ status: ## Show cluster health overview
 # ==============================================================================
 
 sync: creds ## Install ArgoCD and apply bootstrap manifests
-	@echo "⏳ Waiting for API..."
-	@until kubectl cluster-info >/dev/null 2>&1; do sleep 5; printf '.'; done; echo
 	kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 	kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$(ARGOCD_VERSION)/manifests/install.yaml
 	@echo "⏳ Waiting for ArgoCD..."
 	kubectl rollout status deploy/argocd-server -n argocd --timeout=180s
+	@echo "🔧 Pre-installing cert-manager CRDs to satisfy ClusterIssuer validation..."
+	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.3/cert-manager.crds.yaml
 	kubectl apply -f manifests/
 
 pass: ## Get ArgoCD admin password

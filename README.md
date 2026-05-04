@@ -69,6 +69,9 @@ To run this cluster on a MacBook M1-M5 Pro, Max, or Ultra, use **UTM** with thes
 15. **Fetch Credentials**: Run `make creds` to get your `kubeconfig`.
 16. **Deploy Stack**: Run `make sync` to install ArgoCD and all site manifests.
 17. **Access**: Run `make hosts` and `make pass` to get into the dashboards.
+18. **Sealing secrets**: Run `make seal P=secrets-plain.yaml S=iooding/k8s/sealed-secrets.yaml` to seal your secrets.
+19. **Restoring master key**: Run `make fetch-key` to backup your master key. Run `make restore-key` to restore your master key.
+20. **ArgoCD admin password**: Run `make pass` to get ArgoCD admin password.
 
 
 ## Make Targets
@@ -117,29 +120,41 @@ make upgrade
 ```
 *(This one command updates your `talosctl` CLI via Homebrew and performs a rolling upgrade of the OS on all nodes).*
 
-## Secret Management (Sealed Secrets)
+## Secret Management & Disaster Recovery (Sealed Secrets)
 
-Your app uses **Sealed Secrets** to store passwords in Git safely. Because you created a new cluster, you must re-seal your secrets or restore the master key.
+Your app uses **Sealed Secrets** to securely store passwords in Git. 
 
-### To re-launch the app after a fresh cluster build:
+⚠️ **CRITICAL REBUILD WARNING:** Every time you delete and recreate your cluster, the Sealed Secrets controller generates a **brand new encryption key**. Your old encrypted secrets in Git will throw an `ErrUnsealFailed` because the new cluster cannot decrypt them!
+
+You have two ways to fix this:
+
+### Option A: The "Proper" Way (If you backed up the master key)
+If you ran `make fetch-key` before deleting the old cluster, you have the old master key saved locally in `sealed-secrets-master.key`.
+To inject the old master key into your new cluster so it can decrypt Git:
+```bash
+make restore-key
+```
+
+### Option B: The "Fresh" Way (If you lost the master key)
+If you didn't back up the master key, you must re-encrypt your plain passwords using the new cluster's public key.
 
 1. **Prepare the plain secret**: Create `secrets-plain.yaml` (ignored by git) with all your keys:
    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-        name: iooding-secrets
-        namespace: iooding
-    type: Opaque
-    stringData:
-    # Use this new secure key I generated for you
-    django_secret_key: "django-insecure-pv^@u#y*v$h9*"
-    # Your passwords
-    username: "admin!"
-    password: "mydoadmanel12345!"
-    db_password: "postgres1!"
-    # Your AI token
-    lm_studio_api_key: "sk-lm-ejbjmnr6:UZ"
+   apiVersion: v1
+   kind: Secret
+   metadata:
+       name: iooding-secrets
+       namespace: iooding
+   type: Opaque
+   stringData:
+       # Use this new secure key I generated for you
+       django_secret_key: "django-insecure-pv^@u#y*v$h9*"
+       # Your passwords
+       username: "admin"
+       password: "mydoadmanel12345!"
+       db_password: "postgres1!"
+       # Your AI token
+       lm_studio_api_key: "sk-lm-ejbjmnr6:UZ"
    ```
 
 2. **Seal and Commit**:
@@ -148,8 +163,8 @@ Your app uses **Sealed Secrets** to store passwords in Git safely. Because you c
    git add iooding/k8s/sealed-secrets.yaml && git commit -m "update secrets" && git push
    ```
 
-3. **Backup your Master Key**:
-   Run this once you have a working cluster. Save this file in a secure vault!
+3. **Backup your New Master Key**:
+   Run this now so you don't have to do Option B next time!
    ```bash
    make fetch-key
    ```

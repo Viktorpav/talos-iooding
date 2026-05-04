@@ -22,10 +22,6 @@ machine:
       - ip: 192.168.0.54
         aliases:
           - my-cluster-master
-  time:
-    servers:
-      - time.cloudflare.com
-      - pool.ntp.org
   sysctls:
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
