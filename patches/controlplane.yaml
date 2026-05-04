@@ -2,7 +2,7 @@ cluster:
   allowSchedulingOnControlPlanes: true
 machine:
   nodeLabels:
-    node-role.kubernetes.io/storage: "true"
+    infra.iooding.local/storage: "true"
   install:
     disk: /dev/vda
     wipe: true
@@ -17,8 +17,7 @@ machine:
           - network: 0.0.0.0/0
             gateway: 192.168.0.1
     nameservers:
-      - 1.1.1.1
-      - 8.8.8.8
+      - 192.168.0.1
     extraHostEntries:
       - ip: 192.168.0.54
         aliases:
