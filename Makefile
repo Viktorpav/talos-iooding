@@ -11,7 +11,7 @@ IMG            ?= viktor2003/iooding
 TAG            ?= $(shell cd iooding && git rev-parse --short HEAD)
 
 # Environment
-export KUBECONFIG := $(shell pwd)/kubeconfig
+# KUBECONFIG is handled by talosctl merging into ~/.kube/config automatically
 
 .PHONY: help all apply creds sync hosts pass dash status reboot upgrade seal fetch-key restore-key build deploy
 
@@ -60,8 +60,8 @@ apply: ## Update machine configurations via patches
 	$(TALOSCTL) patch mc --nodes $(CP) -p @patches/controlplane.yaml
 	$(TALOSCTL) patch mc --nodes $(WK) -p @patches/worker.yaml
 
-creds: ## Sync cluster credentials to local kubeconfig
-	$(TALOSCTL) kubeconfig . --nodes $(CP) --force
+creds: ## Sync cluster credentials to global ~/.kube/config
+	$(TALOSCTL) kubeconfig --nodes $(CP) --force
 
 upgrade: ## Upgrade both CLI and Cluster OS
 	brew update && brew upgrade siderolabs/tap/talosctl
