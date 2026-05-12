@@ -12,6 +12,7 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: iooding
+  revisionHistoryLimit: 2
   syncPolicy:
     automated:
       prune: true
