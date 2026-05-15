@@ -28,6 +28,7 @@ spec:
             type: LoadBalancer
           admissionWebhooks:
             enabled: false              # saves ~30 MiB RAM
+          priorityClassName: iooding-critical
           resources:
             requests:
               cpu: 25m
