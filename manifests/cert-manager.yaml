@@ -18,8 +18,6 @@ spec:
         global:
           leaderElection:
             namespace: cert-manager
-        nodeSelector:
-          kubernetes.io/hostname: talos-oeu-8dd
         resources:
           requests:
             cpu: 10m
@@ -27,8 +25,6 @@ spec:
           limits:
             memory: 128Mi
         webhook:
-          nodeSelector:
-            kubernetes.io/hostname: talos-oeu-8dd
           resources:
             requests:
               cpu: 5m
@@ -36,8 +32,6 @@ spec:
             limits:
               memory: 64Mi
         cainjector:
-          nodeSelector:
-            kubernetes.io/hostname: talos-oeu-8dd
           resources:
             requests:
               cpu: 5m

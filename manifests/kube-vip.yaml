@@ -142,8 +142,6 @@ spec:
         app: kube-vip
         component: kube-vip-cloud-provider
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: talos-oeu-8dd
       containers:
         - name: kube-vip-cloud-provider
           image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.10
