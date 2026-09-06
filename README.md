@@ -121,7 +121,11 @@ You can now visit `https://argocd.local` and `https://iooding.local`!
 |---|---|
 | `make apply` | Push updates from `patches/` directly to the running nodes without rebooting. |
 | `make upgrade` | Performs a zero-downtime rolling upgrade of Talos OS on all nodes (Set `TALOS_VERSION` in Makefile). |
-| `make status` | Quick cluster health overview (Nodes, ArgoCD, Failed Pods). |
+| `make upgrade-k8s` | Performs a control-plane upgrade of Kubernetes components to `K8S_VERSION`. |
+| `make backup-etcd` | Creates an instant `etcd` snapshot to the `backups/` folder. |
+| `make backup-db` | Dumps the PostgreSQL database to a gzipped file in `backups/`. |
+| `make restore-db` | Restores PostgreSQL from a dump (e.g. `make restore-db F=backups/...`). |
+| `make status` | Comprehensive cluster health overview (Nodes, PVCs, Certificates, ArgoCD Apps, Pods). |
 | `make reboot` | Gracefully restart both nodes. |
 | `make dash` | Open the native Talos metrics dashboard. |
 
@@ -129,7 +133,8 @@ You can now visit `https://argocd.local` and `https://iooding.local`!
 
 The files `controlplane.yaml`, `worker.yaml`, and `talosconfig` contain your cluster's **private keys and certificates**. 
 
-*   **Backup**: Store these files in a secure location (e.g., Vault, 1Password).
+*   **Config Backup**: Store these files in a secure location (e.g., Vault, 1Password).
+*   **Database & State Backup**: Run `make backup-etcd` to capture the etcd cluster database state.
 *   **Loss**: If you lose these files, you cannot add new nodes to the existing cluster or recover it from scratch with the same identity.
 
 

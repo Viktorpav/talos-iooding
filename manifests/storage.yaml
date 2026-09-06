@@ -18,7 +18,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rancher/local-path-provisioner.git
-    targetRevision: v0.0.30            # pinned to last well-tested release
+    targetRevision: v0.0.37            # pinned to latest tested release
     path: deploy/chart/local-path-provisioner
     helm:
       values: |
@@ -57,5 +57,5 @@ metadata:
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: rancher.io/local-path
-reclaimPolicy: Delete
+reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer

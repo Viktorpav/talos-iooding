@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
         - name: kube-vip
-          image: ghcr.io/kube-vip/kube-vip:v0.8.9
+          image: ghcr.io/kube-vip/kube-vip:v1.2.3
           imagePullPolicy: IfNotPresent
           args:
             - manager
@@ -144,7 +144,7 @@ spec:
     spec:
       containers:
         - name: kube-vip-cloud-provider
-          image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.10
+          image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
           imagePullPolicy: IfNotPresent
           command:
             - /kube-vip-cloud-provider

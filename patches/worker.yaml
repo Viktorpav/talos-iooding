@@ -1,4 +1,8 @@
 machine:
+  time:
+    servers:
+      - time.apple.com
+      - pool.ntp.org
   nodeLabels:
     infra.iooding.local/worker: "true"
     infra.iooding.local/storage: "true"
@@ -17,11 +21,14 @@ machine:
             gateway: 192.168.0.1
     nameservers:
       - 192.168.0.1
+      - 1.1.1.1
+      - 8.8.8.8
     extraHostEntries:
       - ip: 192.168.0.54
         aliases:
           - my-cluster-master
   sysctls:
+    vm.max_map_count: "262144"
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
     net.ipv4.conf.all.rp_filter: "1"
