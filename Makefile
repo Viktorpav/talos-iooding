@@ -4,8 +4,9 @@ WK             := 192.168.0.55
 LB_IP          := 192.168.0.240
 TALOSCTL       := talosctl --talosconfig talosconfig
 ARGOCD_VERSION ?= stable
-TALOS_VERSION  ?= v1.14.0
-K8S_VERSION    ?= 1.36.0
+TALOS_VERSION        ?= v1.14.0
+TALOS_INSTALLER_IMAGE ?= factory.talos.dev/installer/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba:$(TALOS_VERSION)
+K8S_VERSION          ?= 1.36.0
 
 # Image Configuration
 IMG            ?= viktor2003/iooding
@@ -65,9 +66,9 @@ creds: ## Sync cluster credentials to global ~/.kube/config
 	$(TALOSCTL) kubeconfig --nodes $(CP) --force
 
 upgrade: ## Upgrade both CLI and Cluster OS
-	@brew update && brew upgrade siderolabs/tap/talosctl || true
-	$(TALOSCTL) upgrade --nodes $(CP) --image ghcr.io/siderolabs/installer:$(TALOS_VERSION)
-	$(TALOSCTL) upgrade --nodes $(WK) --image ghcr.io/siderolabs/installer:$(TALOS_VERSION)
+	@brew update && brew upgrade siderolabs/tap/talosctl 2>/dev/null || true
+	$(TALOSCTL) upgrade --nodes $(CP) --image $(TALOS_INSTALLER_IMAGE)
+	$(TALOSCTL) upgrade --nodes $(WK) --image $(TALOS_INSTALLER_IMAGE)
 
 upgrade-k8s: ## Upgrade Kubernetes cluster version
 	$(TALOSCTL) upgrade-k8s --nodes $(CP) --to $(K8S_VERSION)

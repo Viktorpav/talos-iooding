@@ -1,7 +1,8 @@
 machine:
   time:
     servers:
-      - time.apple.com
+      - time.cloudflare.com
+      - time.google.com
       - pool.ntp.org
   nodeLabels:
     infra.iooding.local/worker: "true"
@@ -20,7 +21,6 @@ machine:
           - network: 0.0.0.0/0
             gateway: 192.168.0.1
     nameservers:
-      - 192.168.0.1
       - 1.1.1.1
       - 8.8.8.8
     extraHostEntries:
